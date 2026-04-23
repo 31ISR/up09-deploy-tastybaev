@@ -44,27 +44,31 @@ CMD ["node", "index.js"]
 
 ```yaml
 services:
-  app:
-    build: .
+
+  frontend:
+    container_name: frontend
+    image: nginx
     ports:
-      - "3000:3000"
-    depends_on:
-      - db
-
-  db:
-    image: mysql:8
+      - "80:80"
     environment:
-      MYSQL_DATABASE: mydb
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: secret
+      - NGINX_PORT=80
     volumes:
-      - db_data:/var/lib/mysql
+      - ./frontend:/usr/share/nginx/html
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    restart: unless-stopped
+    networks:
+      - my-app-network
 
-volumes:
-  db_data:
+  backend:
+    container_name: backend
+    build: ./backend/.
+    restart: unless-stopped
+    networks:
+      - my-app-network
+
+networks:
+  my-app-network:
 ```
-
-`depends_on` — порядок запуска, не готовность. База может стартовать, но ещё не принимать подключения. Для этого — `healthcheck`.
 
 `volumes` — без тома данные исчезнут при удалении контейнера.
 
