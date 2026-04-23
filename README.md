@@ -90,17 +90,23 @@ docker compose build # Собрать все образы из композа
 Статику отдаёт сам — HTML, CSS, JS, картинки — без участия Node.js. API-запросы проксирует на Express.
 
 ```nginx
-server {
-    listen 80;
+events {}
 
-    location / {
-        root /usr/share/nginx/html;
-        try_files $uri $uri/ /index.html;
-    }
+http {
+	include /etc/nginx/mime.types;
 
-    location /api/ {
-        proxy_pass http://app:3000;
-    }
+	server {
+		listen 80;
+
+		location / {
+			root /usr/share/nginx/html;
+			try_files $uri $uri/ /index.html;
+		}
+
+		location /api/ {
+			proxy_pass http://app:3000;
+		}
+	}
 }
 ```
 
